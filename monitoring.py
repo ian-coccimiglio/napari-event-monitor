@@ -15,7 +15,7 @@ from magicgui.widgets import (
     Container,
     TextEdit,
     Checkbox,
-    Table
+    Table,
 )
 from datetime import datetime
 from napari.settings import get_settings
@@ -30,15 +30,18 @@ class EventMonitor(Container):
             viewer (_type_): The viewer to attach the monitor to
         """
         super().__init__(label=False)  # We need to initialize the Container first.
+
+        self.RECENT_LENGTH = 10
+        
         self.viewer = viewer
         self.event_log = []
-        self.recent_events = deque(maxlen=20)
-
+        self.recent_events = deque(maxlen=self.RECENT_LENGTH)
         self.tablewidget = Table(value=list(self.recent_events))
+        self.event_attributes_list = deque(maxlen=self.RECENT_LENGTH)
+        self.tablewidget.native.cellClicked.connect(self._view_attributes)
         self.mouse_events_checkbox = Checkbox(label="Mouse Events")
         self.status_events_checkbox = Checkbox(label="Status Events")
         self.textwidget = TextEdit(value="")
-
         self.extend([self.tablewidget,
                      self.mouse_events_checkbox,
                      self.status_events_checkbox,
@@ -93,25 +96,36 @@ class EventMonitor(Container):
             return
         if ("status" in event_string and status_events_disabled):
             return
-        self.set_event_data(event, event_string)
+        self.record_event_data(self.event_log, event_string)
+        self.record_event_data(self.recent_events, event_string, event=event)
         self.tablewidget.set_value(list(self.recent_events))
-        if len(self.event_log) >= 20:
-            indices = list(range(len(self.event_log)-20, len(self.event_log)))
+        if len(self.event_log) >= self.RECENT_LENGTH:
+            recent_range = range(len(self.event_log)-self.RECENT_LENGTH,
+                                 len(self.event_log))
+            indices = list(recent_range)
             self.tablewidget.row_headers = indices
         self.tablewidget.native.scrollToBottom()
 
-    def set_event_data(self, event, event_string):
+    def _view_attributes(self, index):
+        self.textwidget.set_value(self.event_attributes_list[index])
+
+    def record_event_attributes(self, event):
+        event_attributes = ''
+        for attr in dir(event):
+            if not attr.startswith("_"):
+                attribute_string = f"{attr} = {getattr(event, attr)}\n"
+                if len(attribute_string) > 100:
+                    attribute_string = f"{attr} = output too long\n"
+                event_attributes = event_attributes + attribute_string
+        self.event_attributes_list.append(event_attributes)
+
+    def record_event_data(self, log, event_string, event=None):
         event_time = datetime.now().strftime(format="%H:%M:%S.%f")[:-3]
-        self.event_log.append({"Event": event_string.split(".")[-1],
-                               "Time": event_time,
-                               "API": event_string})
-        self.recent_events.append({"Event": event_string.split(".")[-1], 
-                                   "Time": event_time, 
-                                   "API": event_string})
-        # if hasattr(event, "type"):
-        #     self.event_data["type"] = event.type
-        # if hasattr(event, "action"):
-        #     self.event_data["action"] = event.action
+        log.append({"Event": event_string.split(".")[-1],
+                    "Time": event_time,
+                    "API": event_string})
+        if event is not None:
+            self.record_event_attributes(event)
 
     def get_event_string(self, event_monitor, event_name):
         return f"{event_monitor}.events.{event_name}"
@@ -138,8 +152,6 @@ text = {
     "translation": np.array([-30, 0]),
 }
 
-
-# napari.qt.Window.add_dock_widget(monitor)
 viewer.add_image(np.random.random((100, 100)))
 viewer.add_points([0, 10], features=features, text=text)
 napari.run()
