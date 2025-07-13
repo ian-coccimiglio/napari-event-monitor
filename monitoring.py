@@ -145,7 +145,7 @@ class EventMonitor(Container):
     def _on_layer_added(self, event):
         layer = event.value
         # print(event.value)
-        self._monitor_object_events(layer, event.value._name)
+        self._monitor_object_events(layer, "viewer."+event.value._name)
 
 
 # Usage
