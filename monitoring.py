@@ -8,7 +8,7 @@ Created on Fri Jul 11 22:30:48 2025
 
 import napari
 import numpy as np
-from collections import defaultdict, deque
+from collections import deque
 
 # from qtpy.QtWidgets import QTextBrowser, QWidget
 from magicgui.widgets import (
@@ -20,9 +20,6 @@ from magicgui.widgets import (
 from datetime import datetime
 from napari.settings import get_settings
 get_settings().application.ipy_interactive = False
-
-# textWidget = TextEdit(value="text edit value...", label="TextEdit:")
-
 
 class EventMonitor(Container):
     def __init__(self, viewer):
@@ -36,27 +33,16 @@ class EventMonitor(Container):
         self.viewer = viewer
         self.event_log = []
         self.recent_events = deque(maxlen=20)
-        # self.event_data = defaultdict(dict)
-        # self.event_data["Event"] = defaultdict(str)
-        # self.event_data["Time"] = defaultdict(str)
-        # self.event_data["API"] = defaultdict(str)
-        # self.event_log.extend({"Event": str, "Time": str, "API": str})
-        # self.recent_events.extend({"Event": str, "Time": str, "API": str})
-
-        # self.event_data = {"Event": {"Event_1": "Opacity",
-        #                              "Event_2": "Mouse_Move"},
-        #                              "Time": {"Event_1": "1.2",
-        #                                       "Event_2": "1.5"}}
 
         self.tablewidget = Table(value=list(self.recent_events))
         self.mouse_events_checkbox = Checkbox(label="Mouse Events")
         self.status_events_checkbox = Checkbox(label="Status Events")
+        self.textwidget = TextEdit(value="")
+
         self.extend([self.tablewidget,
                      self.mouse_events_checkbox,
-                     self.status_events_checkbox])
-        # self.event_data["Event"]["Event_1"] = "A"
-        # print(len(self.event_data["Event"].keys()))
-        # self.tablewidget.set_value(self.event_data)
+                     self.status_events_checkbox,
+                     self.textwidget])
         self.setup_monitoring()
 
     def setup_monitoring(self):
@@ -109,6 +95,9 @@ class EventMonitor(Container):
             return
         self.set_event_data(event, event_string)
         self.tablewidget.set_value(list(self.recent_events))
+        if len(self.event_log) >= 20:
+            indices = list(range(len(self.event_log)-20, len(self.event_log)))
+            self.tablewidget.row_headers = indices
         self.tablewidget.native.scrollToBottom()
 
     def set_event_data(self, event, event_string):
