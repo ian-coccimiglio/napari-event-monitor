@@ -9,8 +9,9 @@ from magicgui.widgets import (
 )
 from datetime import datetime
 
+
 class EventMonitor(Container):
-    def __init__(self, viewer:"napari.viewer.Viewer"):
+    def __init__(self, viewer: "napari.viewer.Viewer"):
         """
         Initializes the event monitor
 
@@ -25,8 +26,8 @@ class EventMonitor(Container):
         self.recent_events = deque(maxlen=self.RECENT_LENGTH)
         self.tablewidget = Table(value=list(self.recent_events))
         self.event_attributes_list = deque(maxlen=self.RECENT_LENGTH)
-        # self.tablewidget.native.cellClicked.connect(self._view_attributes)
-        self.tablewidget.native.selectionModel().currentChanged.connect(self._view_attributes)
+        selection_event = self.tablewidget.native.selectionModel()
+        selection_event.currentChanged.connect(self._view_attributes) 
         self.mouse_events_checkbox = Checkbox(label="Mouse Events")
         self.status_events_checkbox = Checkbox(label="Status Events")
         self.textwidget = TextEdit(value="")
@@ -112,7 +113,6 @@ class EventMonitor(Container):
                     attribute_string = f"event.{attr} = output too long"
                 event_attributes.append(attribute_string)
         event_attributes_string = "<br>".join(event_attributes)
-        # event_attributes = event_attributes + attribute_string
         self.event_attributes_list.append(event_attributes_string)
 
     def record_event_data(self, log, event_string, event=None):
@@ -131,7 +131,6 @@ class EventMonitor(Container):
 
     def _on_layer_added(self, event):
         layer = event.value
-        # print(event.value)
         self._monitor_object_events(layer, "viewer."+event.value._name)
 
 
