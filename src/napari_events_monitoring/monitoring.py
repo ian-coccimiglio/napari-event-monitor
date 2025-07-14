@@ -1,16 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jul 11 22:30:48 2025
-
-@author: iancoccimiglio
-"""
-
 import napari
 import numpy as np
 from collections import deque
-
-# from qtpy.QtWidgets import QTextBrowser, QWidget
 from magicgui.widgets import (
     Container,
     TextEdit,
@@ -18,12 +8,9 @@ from magicgui.widgets import (
     Table,
 )
 from datetime import datetime
-from napari.settings import get_settings
-get_settings().application.ipy_interactive = False
-
 
 class EventMonitor(Container):
-    def __init__(self, viewer):
+    def __init__(self, viewer:"napari.viewer.Viewer"):
         """
         Initializes the event monitor
 
@@ -149,19 +136,20 @@ class EventMonitor(Container):
 
 
 # Usage
-viewer = napari.Viewer()
-monitor = EventMonitor(viewer)
-viewer.window.add_dock_widget(monitor)
+if __name__ == "__main__":
+    viewer = napari.Viewer()
+    monitor = EventMonitor(viewer)
+    viewer.window.add_dock_widget(monitor)
 
-features = {"confidence": np.array([1])}
+    features = {"confidence": np.array([1])}
 
-text = {
-    "string": "Confidence is {confidence:.2f}",
-    "size": 20,
-    "color": "blue",
-    "translation": np.array([-30, 0]),
-}
+    text = {
+        "string": "Confidence is {confidence:.2f}",
+        "size": 20,
+        "color": "blue",
+        "translation": np.array([-30, 0]),
+    }
 
-viewer.add_image(np.random.random((100, 100)))
-viewer.add_points([0, 10], features=features, text=text)
-napari.run()
+    viewer.add_image(np.random.random((100, 100)))
+    viewer.add_points([0, 10], features=features, text=text)
+    napari.run()
