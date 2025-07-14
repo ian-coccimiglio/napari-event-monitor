@@ -1,0 +1,12 @@
+name: napari-event-monitor
+display_name: Napari Event Monitor
+visibility: public
+
+contributions:
+  commands:
+    - id: napari-event-monitor.make_monitor
+      title: Creates the napari Event Monitor widget
+      python_name: napari_event_monitor:EventMonitor
+  widgets:
+    - command: napari-event-monitor.make_monitor  # note, same as command.id above
+      display_name: Make Event Monitor 

@@ -3,7 +3,7 @@ requires= ["setuptools>=42.0.0", "wheel", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "napari-events-monitoring"
+name = "napari-event-monitor"
 dynamic = ["version"]
 authors = [{ name= "Ian Coccimiglio", email="icoccimi@gmail.com"}]
 description = "Dynamic event monitoring and diagnostics in napari"
@@ -24,8 +24,8 @@ where = ["src"]
 "*" = ["*.yaml"]
 
 [project.entry-points."napari.manifest"]
-napari-events-monitoring = "napari_events_monitoring:napari.yaml"
+napari-event-monitor = "napari_event_monitor:napari.yaml"
 
 [project.urls]
-Homepage="https://github.com/ian-coccimiglio/napari-event-monitoring"
-Issues="https://github.com/ian-coccimiglio/napari-event-monitoring/issues/"
+Homepage="https://github.com/ian-coccimiglio/napari-event-monitor"
+Issues="https://github.com/ian-coccimiglio/napari-event-monitor/issues/"

@@ -1,2 +1,2 @@
-# napari-events
-Testing and Docuemnting the Napari Event Loop
+# napari-event-monitor
+Testing and Documenting the napari Event Loop
