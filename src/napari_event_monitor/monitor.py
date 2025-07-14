@@ -115,7 +115,6 @@ class EventMonitor(Container):
         native_table.setColumnWidth(1, 100)
         native_table.setColumnWidth(2, 300)
 
-
     def _view_attributes(self, current):
         if current.isValid():
             row_index = current.row()
@@ -158,7 +157,11 @@ class EventMonitor(Container):
         list_of_events.append(list(self.event_log[0].keys()))
         for entry in self.event_log:
             list_of_events.append(list(entry.values()))
-        io.write_csv(self.filechooser.get_value(), list_of_events)
+        
+        if self.filechooser.get_value().is_file():
+            io.write_csv(self.filechooser.get_value(), list_of_events)
+        else:
+            self._viewer.status = "Choose a file first"
 
     def clear_events(self):
         self.event_log = []
