@@ -14,6 +14,11 @@ from napari_builtins import io
 
 
 class EventMonitor(Container):
+    SCREEN_WIDTH = 600
+    RECENT_LENGTH = 10
+    COLUMN_WIDTHS = [100, 100, 300]
+    MAX_STRING_LENGTH = 100
+
     def __init__(self, viewer: "napari.viewer.Viewer"):
         """
         Initializes the event monitor
@@ -22,23 +27,24 @@ class EventMonitor(Container):
             viewer (_type_): The viewer to attach the monitor to
         """
         super().__init__(label=False)  # Initialize the Container first
-        self.native.setMinimumWidth(600)
-        self.RECENT_LENGTH = 10
+
+        self.native.setMinimumWidth(self.SCREEN_WIDTH)
         self._viewer = viewer
         self.event_log = []
         self.recent_events = deque(maxlen=self.RECENT_LENGTH)
-        self.tablewidget = Table(value=list(self.recent_events))
-
         self.event_attributes_list = deque(maxlen=self.RECENT_LENGTH)
+
+        # Widgets
+        self.tablewidget = Table(value=list(self.recent_events))
         selection_event = self.tablewidget.native.selectionModel()
         selection_event.currentChanged.connect(self._view_attributes)
         self.mouse_events_cbox = Checkbox(label="Include Mouse Events")
         self.status_events_cbox = Checkbox(label="Include Status Bar Events")
         self.clearbutton = PushButton(text="Clear Event Logs")
-
         self.textwidget = TextEdit(value="")
         self.filechooser = FileEdit(mode="w")
         self.savebutton = PushButton(text="Save Event Reference")
+
         self.extend([self.tablewidget,
                      self.clearbutton,
                      self.mouse_events_cbox,
@@ -54,9 +60,14 @@ class EventMonitor(Container):
         # Monitor viewer events
         self._monitor_object_events(self._viewer, "viewer")
         self._monitor_object_events(self._viewer.camera, "viewer.camera")
+        self._monitor_object_events(self._viewer.camera, "viewer.cursor")
+        self._monitor_object_events(self._viewer.camera, "viewer.dims")
+        self._monitor_object_events(self._viewer.camera, "viewer.tooltip")
+        self._monitor_object_events(self._viewer.camera, "viewer.grid")
 
         # Monitor layer events
         self._monitor_object_events(self._viewer.layers, "layers")
+        # self._check_existing_layers()
 
         # Monitor individual layers as they're added
         self._viewer.layers.events.inserted.connect(self._on_layer_added)
@@ -68,8 +79,8 @@ class EventMonitor(Container):
 
     def _monitor_object_events(self, obj, event_monitor):
         """
-        Cycles through an EventGroup and attaches events,
-        pinging on interaction.
+        Cycles through an event EmitterGroup and adds an event
+        to a row of the widget table.
 
         Parameters
         ----------
@@ -92,6 +103,10 @@ class EventMonitor(Container):
                 )
                 # getting class name - .__cls__.name
 
+    def _check_existing_layers(self):
+        for layer in self._viewer.layers:
+            self._monitor_object_events(layer)
+
     def _log_event(self, event, event_string):
         mouse_events_disabled = not self.mouse_events_cbox.get_value()
         status_events_disabled = not self.status_events_cbox.get_value()
@@ -102,18 +117,20 @@ class EventMonitor(Container):
         self.record_event_data(self.event_log, event_string)
         self.record_event_data(self.recent_events, event_string, event=event)
         self.tablewidget.set_value(list(self.recent_events))
+
+        #
         if len(self.event_log) >= self.RECENT_LENGTH:
             recent_range = range(len(self.event_log)-self.RECENT_LENGTH,
                                  len(self.event_log))
             indices = list(recent_range)
             self.tablewidget.row_headers = indices
         native_table = self.tablewidget.native
-        native_table.scrollToBottom()
 
-        # Method A: Set specific column widths
-        native_table.setColumnWidth(0, 100)
-        native_table.setColumnWidth(1, 100)
-        native_table.setColumnWidth(2, 300)
+        # Dynamic TableWidget formatting
+        native_table.scrollToBottom()
+        native_table.setColumnWidth(0, self.COLUMN_WIDTHS[0])
+        native_table.setColumnWidth(1, self.COLUMN_WIDTHS[1])
+        native_table.setColumnWidth(2, self.COLUMN_WIDTHS[2])
 
     def _view_attributes(self, current):
         if current.isValid():
@@ -128,7 +145,7 @@ class EventMonitor(Container):
         for attr in dir(event):
             if not attr.startswith("_"):
                 attribute_string = f"event.{attr} = {getattr(event, attr)}"
-                if len(attribute_string) > 100:
+                if len(attribute_string) > self.MAX_STRING_LENGTH:
                     attribute_string = f"event.{attr} = output too long"
                 event_attributes.append(attribute_string)
         event_attributes_string = "<br>".join(event_attributes)
@@ -157,7 +174,7 @@ class EventMonitor(Container):
         list_of_events.append(list(self.event_log[0].keys()))
         for entry in self.event_log:
             list_of_events.append(list(entry.values()))
-        
+
         if self.filechooser.get_value().is_file():
             io.write_csv(self.filechooser.get_value(), list_of_events)
         else:
