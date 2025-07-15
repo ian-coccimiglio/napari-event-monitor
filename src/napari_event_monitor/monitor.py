@@ -21,10 +21,10 @@ class EventMonitor(Container):
 
     def __init__(self, viewer: "napari.viewer.Viewer"):
         """
-        Initializes the event monitor
+        Initializes the event monitor onto a specific viewer.
 
         Args:
-            viewer (_type_): The viewer to attach the monitor to
+            viewer (_type_): Attach the monitor to a specific viewer.
         """
         super().__init__(label=False)  # Initialize the Container first
 
@@ -34,21 +34,26 @@ class EventMonitor(Container):
         self.recent_events = deque(maxlen=self.RECENT_LENGTH)
         self.event_attributes_list = deque(maxlen=self.RECENT_LENGTH)
 
+        self.horizontalbox = Container(layout="horizontal")
+
         # Widgets
         self.tablewidget = Table(value=list(self.recent_events))
         selection_event = self.tablewidget.native.selectionModel()
         selection_event.currentChanged.connect(self._view_attributes)
+
         self.mouse_events_cbox = Checkbox(label="Include Mouse Events")
         self.status_events_cbox = Checkbox(label="Include Status Bar Events")
+        checkboxes = [self.mouse_events_cbox, self.status_events_cbox]
+        self.horizontalbox.extend(checkboxes)
         self.clearbutton = PushButton(text="Clear Event Logs")
         self.textwidget = TextEdit(value="")
         self.filechooser = FileEdit(mode="w")
         self.savebutton = PushButton(text="Save Event Reference")
 
+        # Creating the GUI layout
         self.extend([self.tablewidget,
                      self.clearbutton,
-                     self.mouse_events_cbox,
-                     self.status_events_cbox,
+                     self.horizontalbox,
                      self.textwidget,
                      self.filechooser,
                      self.savebutton])
