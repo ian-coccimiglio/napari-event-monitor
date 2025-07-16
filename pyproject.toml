@@ -23,6 +23,8 @@ where = ["src"]
 [tool.setuptools.package-data]
 "*" = ["*.yaml"]
 
+[tool.setuptools_scm]
+
 [project.entry-points."napari.manifest"]
 napari-event-monitor = "napari_event_monitor:napari.yaml"
 
