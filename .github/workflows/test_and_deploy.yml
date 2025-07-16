@@ -19,7 +19,6 @@ jobs:
   test:
     name: ${{ matrix.platform }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
-    environment: pypi
     timeout-minutes: 30
     strategy:
       matrix:
@@ -70,6 +69,7 @@ jobs:
     # github secrets (see readme for details)
     needs: [test]
     runs-on: ubuntu-latest
+    environment: pypi
     if: contains(github.ref, 'tags')
     permissions:
       id-token: write
