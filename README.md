@@ -3,6 +3,8 @@
 # napari-event-monitor
 A tool for monitoring, testing, and documenting the events occurring in the napari Event Loop.
 
+![Visualization of the napari event monitor](./images/napari_demonstration.png)
+
 ## Background
 Have you ever clicked a button in the napari UI and wondered: How can I trigger that programatically? If so, the napari Event Monitor may be a worthwhile tool for you!
 
