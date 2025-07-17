@@ -1,8 +1,7 @@
-[![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/<your-plugin-name-here>)](https://napari-hub.org/plugins/<your-plugin-name-here>)
-
+[![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-event-monitor)](https://napari-hub.org/plugins/napari-event-monitor)
 
 # napari-event-monitor
-Testing and documenting the napari Event Loop
+A tool for monitoring, testing, and documenting the events occurring in the napari Event Loop.
 
 ## Background
 Have you ever clicked a button in the napari UI and wondered: How can I trigger that programatically? If so, the napari Event Monitor may be a worthwhile tool for you!
@@ -26,8 +25,8 @@ The plugin will then appear in the menus under Plugins\>Make Event Monitor
 
 ## Usage
 
-Simply start the plugin from the menus, open some images, and watch the 
+Simply start the plugin from the menus, open some images, and watch the event monitor fill up with events. Then, click on any event to learn about the event's exposed attributes.
 
 ## Contributions
 
-Any and all contributions are welcome! Especially testing and other events.
+Any and all contributions are welcome! Especially any testing of the plugin. Feel free to file any issues or pull requests.
